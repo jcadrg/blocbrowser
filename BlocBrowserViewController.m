@@ -29,6 +29,7 @@
 @property (nonatomic, strong) AwesomeFloatingToolbar *awesomeToolbar;
 
 
+
 @end
 
 
@@ -109,6 +110,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.awesomeToolbar.frame = CGRectMake(20, 380, 280, 60);
     self.edgesForExtendedLayout = UIRectEdgeNone;
     
     self.activityIndicator =[[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
@@ -139,7 +142,7 @@
         currentButtonX += buttonWidth;
         
     }*/
-    self.awesomeToolbar.frame = CGRectMake(20, 380, 280, 60);
+
     
 }
 
@@ -265,9 +268,9 @@
 
 #pragma mark AwesomeFloatingToolbarDelegate
 
--(void) floatingToolBar:(AwesomeFloatingToolbar *)toolbar didSelectButtonWithTitle:(NSString *)title{
+-(void) floatingToolbar:(AwesomeFloatingToolbar *)toolbar didSelectButtonWithTitle:(NSString *)title{
     if ([title isEqual:WebBrowserBackString]) {
-        [self.webView goB   ack];
+        [self.webView goBack];
     } else if ([title isEqual:WebBrowserForwardString]) {
         [self.webView goForward];
     } else if ([title isEqual:WebBrowserStopString]) {
@@ -276,5 +279,35 @@
         [self.webView reload];
     }
 }
+
+- (void) floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryToPanWithOffset:(CGPoint)offset {
+    CGPoint startingPoint = toolbar.frame.origin;
+    CGPoint newPoint = CGPointMake(startingPoint.x + offset.x, startingPoint.y + offset.y);
+    
+    CGRect potentialNewFrame = CGRectMake(newPoint.x, newPoint.y, CGRectGetWidth(toolbar.frame), CGRectGetHeight(toolbar.frame));
+    
+    if (CGRectContainsRect(self.view.bounds, potentialNewFrame)) {
+        toolbar.frame = potentialNewFrame;
+        NSLog(@"%@",NSStringFromCGRect(potentialNewFrame));
+
+    }
+}
+
+- (void) floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryToZoomWithScale:(CGFloat) scale{
+    
+    CGSize startingSize = toolbar.frame.size;
+    CGSize newSize = CGSizeMake((startingSize.width)*scale, (startingSize.height)*scale);
+    
+    CGPoint toolbarOrigin = toolbar.frame.origin;
+    
+    CGRect newFrame = CGRectMake(toolbarOrigin.x - (newSize.width - startingSize.width)*0.5, toolbarOrigin.y, newSize.width, newSize.height);
+    NSLog(@"%@",NSStringFromCGRect(newFrame));
+    if (CGRectContainsRect(self.view.bounds, newFrame)) {
+        toolbar.frame = newFrame;
+    }
+
+}
+
+
 
 @end
